@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+scikit-learn
+rapidfuzz
+pandas
+python-multipart
+ftfy
+# For scalability (optional, choose one):
+faiss-cpu
+# annoy
+# For language detection (optional):
+# fasttext
