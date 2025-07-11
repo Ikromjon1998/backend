@@ -30,8 +30,8 @@ A FastAPI-based REST API for fuzzy matching of entity names against canonical en
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd fuzzy-entity-matching/backend
+   git clone https://github.com/Ikromjon1998/backend.git
+   cd backend
    ```
 
 2. **Create and activate virtual environment**
@@ -243,20 +243,4 @@ The project follows Python best practices with:
 
 - **Interactive Docs**: http://127.0.0.1:8080/docs
 - **OpenAPI Spec**: http://127.0.0.1:8080/openapi.json
-- **ReDoc**: http://127.0.0.1:8080/redoc
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## License
-
-[Add your license here]
-
-## Support
-
-For questions or issues, please [create an issue](link-to-issues) or contact the development team. 
+- **ReDoc**: http://127.0.0.1:8080/redoc 
