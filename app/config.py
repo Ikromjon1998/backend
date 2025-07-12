@@ -1,0 +1,48 @@
+"""
+Configuration settings for the Fuzzy Entity Matching API.
+"""
+from typing import List
+
+# API Configuration
+API_TITLE = "Fuzzy Entity Matching API"
+API_DESCRIPTION = """
+This API provides fuzzy entity matching capabilities for single queries and batch uploads.
+
+- **/match**: Fuzzy match a single entity name against canonical entities.
+- **/batch-match**: Upload a CSV or JSON file with a list of names to batch match.
+- **/health**: Health check endpoint.
+"""
+API_VERSION = "1.0.0"
+
+# CORS Configuration
+CORS_ORIGINS = ["*"]
+CORS_CREDENTIALS = True
+CORS_METHODS = ["*"]
+CORS_HEADERS = ["*"]
+
+# Matching Algorithm Weights
+TFIDF_WEIGHT = 0.4
+LEVENSHTEIN_WEIGHT = 0.4
+TOKEN_SET_WEIGHT = 0.2
+
+# Default Matching Parameters
+DEFAULT_TOP_N = 3
+
+# Canonical Entities (in production, load from database or file)
+CANONICAL_ENTITIES: List[str] = [
+    "Büro AG",
+    "Büro GmbH", 
+    "Büro Restaurants",
+    "Büro Deutschland GmbH & Co. KG",
+    "Büro Offices Berlin GmbH & Co. KG",
+    "Büro Offices Solutions GmbH & Co. KG",
+    "Büro Offices Solutions-Berlin GmbH & Co. KG"
+]
+
+# File Upload Configuration
+SUPPORTED_FILE_TYPES = [".csv", ".json"]
+REQUIRED_CSV_COLUMN = "names"
+REQUIRED_JSON_FIELD = "names"
+
+# Error Messages
+ERROR_UNSUPPORTED_FILE_TYPE = "Unsupported file type. Use CSV or JSON with a 'names' field." 

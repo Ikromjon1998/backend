@@ -5,6 +5,7 @@ rapidfuzz
 pandas
 python-multipart
 ftfy
+pytest
 # For scalability (optional, choose one):
 faiss-cpu
 # annoy
