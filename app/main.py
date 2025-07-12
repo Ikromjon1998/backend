@@ -1,8 +1,11 @@
 """
 Main FastAPI application entry point.
 """
-from fastapi import FastAPI
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .config import (
     API_TITLE, API_DESCRIPTION, API_VERSION,
@@ -13,14 +16,46 @@ from .matcher import FuzzyMatcher
 from .services import MatchingService
 from .routers import create_matching_router, create_health_router
 
-def create_app() -> FastAPI:
-    """Create and configure the FastAPI application."""
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan manager for startup and shutdown events.
     
-    # Create FastAPI app
+    Args:
+        app: FastAPI application instance
+    """
+    # Startup
+    logger.info("Starting Fuzzy Entity Matching API...")
+    logger.info(f"API Version: {API_VERSION}")
+    logger.info(f"Canonical entities loaded: {len(CANONICAL_ENTITIES)}")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down Fuzzy Entity Matching API...")
+
+
+def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+    
+    Returns:
+        Configured FastAPI application instance
+    """
+    # Create FastAPI app with lifespan
     app = FastAPI(
         title=API_TITLE,
         description=API_DESCRIPTION,
-        version=API_VERSION
+        version=API_VERSION,
+        lifespan=lifespan
     )
 
     # Configure CORS
@@ -33,8 +68,13 @@ def create_app() -> FastAPI:
     )
 
     # Initialize services
-    matcher = FuzzyMatcher(CANONICAL_ENTITIES)
-    matching_service = MatchingService(matcher)
+    try:
+        matcher = FuzzyMatcher(CANONICAL_ENTITIES)
+        matching_service = MatchingService(matcher)
+        logger.info("Services initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize services: {str(e)}")
+        raise
 
     # Create and include routers
     matching_router = create_matching_router(matching_service)
@@ -43,7 +83,18 @@ def create_app() -> FastAPI:
     app.include_router(matching_router)
     app.include_router(health_router)
 
+    # Add global exception handler
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        """Global exception handler for unhandled exceptions."""
+        logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Internal server error"}
+        )
+
     return app
+
 
 # Create the application instance
 app = create_app()

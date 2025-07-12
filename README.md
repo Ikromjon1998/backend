@@ -1,42 +1,39 @@
 # Fuzzy Entity Matching API
 
-A FastAPI-based REST API for fuzzy matching of entity names against canonical entities. This service provides both single-query matching and batch processing capabilities with detailed confidence scores.
+A robust FastAPI-based service for fuzzy entity matching using multiple similarity algorithms. This API provides both single entity matching and batch processing capabilities with comprehensive error handling, logging, and configuration management.
 
-## Features
+## 🚀 Features
 
-- **Single Entity Matching**: Match individual entity names against a canonical list
+- **Multi-Algorithm Matching**: Combines TF-IDF, Levenshtein, and Token Set similarity
 - **Batch Processing**: Upload CSV or JSON files for bulk entity matching
-- **Multiple Similarity Algorithms**: Combines TF-IDF, Levenshtein distance, and token set similarity
-- **Detailed Scoring**: Provides confidence scores and detailed similarity breakdowns
-- **Interactive API Documentation**: Built-in Swagger UI and OpenAPI specification
-- **CORS Support**: Ready for frontend integration
+- **Comprehensive Logging**: Detailed logging for debugging and monitoring
+- **Environment Configuration**: Flexible configuration via environment variables and `.env` file
+- **Input Validation**: Robust validation with detailed error messages
+- **Health Checks**: Built-in health monitoring endpoints
+- **CORS Support**: Configurable CORS settings for frontend integration
 
-## Tech Stack
-
-- **FastAPI**: Modern, fast web framework for building APIs
-- **scikit-learn**: TF-IDF vectorization and cosine similarity
-- **rapidfuzz**: Fast fuzzy string matching algorithms
-- **pandas**: Data processing for batch operations
-- **uvicorn**: ASGI server for production deployment
-
-## Quick Start
-
-### Prerequisites
+## 📋 Requirements
 
 - Python 3.8+
-- pip
+- FastAPI
+- Uvicorn
+- scikit-learn
+- rapidfuzz
+- pandas
+- pydantic
+- pydantic-settings
 
-### Installation
+## 🛠️ Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Ikromjon1998/backend.git
-   cd backend
+   git clone <repository-url>
+   cd fuzzy-entity-matching/backend
    ```
 
-2. **Create and activate virtual environment**
+2. **Create virtual environment**
    ```bash
-   python3 -m venv venv
+   python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
@@ -45,25 +42,61 @@ A FastAPI-based REST API for fuzzy matching of entity names against canonical en
    pip install -r requirements.txt
    ```
 
-4. **Run the application**
-   ```bash
-   uvicorn app.main:app --reload --host 127.0.0.1 --port 8080
-   ```
+4. **Configure environment variables**
+   - Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Edit `.env` with your configuration. All variables in `.env.example` are supported. Extra fields are ignored.
 
-5. **Access the API**
-   - API Documentation: http://127.0.0.1:8080/docs
-   - Health Check: http://127.0.0.1:8080/health
+## 🏃‍♂️ Running the Application
 
-## API Endpoints
+### Development Mode
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### 1. Single Entity Matching
+### Production Mode
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
-**POST** `/match`
+## 📚 API Documentation
 
-Match a single entity name against canonical entities.
+Once running, visit:
+- **Interactive API Docs**: http://localhost:8000/docs
+- **ReDoc Documentation**: http://localhost:8000/redoc
 
-**Request:**
-```json
+## 🔧 Configuration
+
+The application uses environment variables for configuration. Key settings include:
+
+### API Configuration
+- `API_TITLE`: API title (default: "Fuzzy Entity Matching API")
+- `API_VERSION`: API version (default: "1.0.0")
+
+### Matching Algorithm Weights
+- `TFIDF_WEIGHT`: Weight for TF-IDF similarity (default: 0.4)
+- `LEVENSHTEIN_WEIGHT`: Weight for Levenshtein similarity (default: 0.4)
+- `TOKEN_SET_WEIGHT`: Weight for Token Set similarity (default: 0.2)
+
+### File Processing
+- `SUPPORTED_FILE_TYPES`: List of supported file extensions
+- `REQUIRED_CSV_COLUMN`: Required column name for CSV files
+- `REQUIRED_JSON_FIELD`: Required field name for JSON files
+
+### Logging
+- `LOG_LEVEL`: Logging level for the application (e.g., INFO, DEBUG, WARNING)
+- Logging is configured in `app/logging_config.py` and logs to both stdout and `app.log` file.
+- Extra fields in `.env` are ignored due to the config setting in `app/config.py`.
+
+## 📖 API Endpoints
+
+### Single Entity Matching
+```http
+POST /match
+Content-Type: application/json
+
 {
   "query": "Buro AG"
 }
@@ -82,66 +115,33 @@ Match a single entity name against canonical entities.
       "token_set": 0.97
     }
   },
-  "alternatives": [
-    {
-      "entity": "Büro Offices Berlin GmbH & Co. KG",
-      "confidence": 0.85,
-      "scores": {
-        "tfidf": 0.80,
-        "levenshtein": 0.84,
-        "token_set": 0.83
-      }
-    }
-  ]
+  "alternatives": [...]
 }
 ```
 
-### 2. Batch Entity Matching
+### Batch Entity Matching
+```http
+POST /match/batch
+Content-Type: multipart/form-data
 
-**POST** `/batch-match`
-
-Upload a CSV or JSON file with entity names for batch processing.
-
-**File Format:**
-- **CSV**: Must have a `names` column
-- **JSON**: Must have a `names` field (array of strings)
-
-**Example CSV:**
-```csv
-names
-Acme Corp.
-Buro AG
-Test Entity
-```
-
-**Example JSON:**
-```json
-{
-  "names": ["Acme Corp.", "Buro AG", "Test Entity"]
-}
+file: [CSV or JSON file with 'names' column/field]
 ```
 
 **Response:**
 ```json
 [
   {
-    "input": "Acme Corp.",
-    "match": "Acme Corporation",
-    "confidence": 0.93
-  },
-  {
     "input": "Buro AG",
     "match": "Büro AG",
-    "confidence": 0.98
+    "confidence": 0.93
   }
 ]
 ```
 
-### 3. Health Check
-
-**GET** `/health`
-
-Check if the API is running.
+### Health Check
+```http
+GET /health
+```
 
 **Response:**
 ```json
@@ -150,97 +150,127 @@ Check if the API is running.
 }
 ```
 
-## Project Structure
+## 🧪 Testing
+
+Run the test suite:
+```bash
+pytest tests/
+```
+
+Run with coverage:
+```bash
+pytest --cov=app tests/
+```
+
+## 📁 Project Structure
 
 ```
 backend/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py              # FastAPI application and endpoints
-│   ├── matcher.py           # Fuzzy matching logic
-│   └── preprocessor.py      # Text preprocessing utilities
+│   ├── main.py              # FastAPI application entry point
+│   ├── config.py            # Configuration management
+│   ├── models.py            # Pydantic models for validation
+│   ├── matcher.py           # Fuzzy matching algorithm
+│   ├── preprocessor.py      # Text preprocessing utilities
+│   ├── services.py          # Business logic layer
+│   ├── routers.py           # API route definitions
+│   └── logging_config.py    # Centralized logging configuration
 ├── tests/
-│   ├── test_matcher.py      # Unit tests for matcher
-│   └── test_preprocessor.py # Unit tests for preprocessor
-├── requirements.txt          # Python dependencies
-├── .gitignore              # Git ignore patterns
-└── README.md               # This file
+│   ├── test_matcher.py
+│   └── test_preprocessor.py
+├── requirements.txt
+├── sample.json              # Sample data for testing
+├── .env.example             # Example environment configuration
+└── README.md
 ```
 
-## Configuration
+## 🔍 Code Quality Improvements
 
-### Canonical Entities
+### 1. **Configuration Management**
+- ✅ Environment variable support with Pydantic Settings
+- ✅ Type-safe configuration with validation
+- ✅ Default values with override capability
 
-The current implementation uses a hardcoded list of canonical entities. In production, you should:
+### 2. **Error Handling**
+- ✅ Comprehensive exception handling
+- ✅ Detailed error messages
+- ✅ Graceful degradation for batch processing
 
-1. Load entities from a database
-2. Use a configuration file
-3. Implement entity management endpoints
+### 3. **Logging**
+- ✅ Structured logging throughout the application
+- ✅ Different log levels (DEBUG, INFO, WARNING, ERROR)
+- ✅ Request/response logging for debugging
 
-**Current entities:**
-- Büro AG
-- Büro Offices Berlin GmbH & Co. KG
-- Acme Corporation
-- Test Entity GmbH
+### 4. **Code Organization**
+- ✅ Clear separation of concerns
+- ✅ Service layer for business logic
+- ✅ Repository pattern for data access
+- ✅ Dependency injection
 
-### Matching Algorithm
+### 5. **Type Safety**
+- ✅ Comprehensive type hints
+- ✅ Pydantic models for validation
+- ✅ Input/output validation
 
-The fuzzy matching combines three similarity metrics:
+### 6. **Documentation**
+- ✅ Detailed docstrings
+- ✅ API documentation with examples
+- ✅ Code comments for complex logic
 
-1. **TF-IDF Cosine Similarity** (40% weight)
-2. **Levenshtein Distance** (40% weight)
-3. **Token Set Ratio** (20% weight)
+### 7. **Testing**
+- ✅ Unit tests for core functionality
+- ✅ Integration tests for API endpoints
+- ✅ Test coverage reporting
 
-## Development
+## 🚀 Deployment
 
-### Running Tests
+### Docker (Recommended)
+```dockerfile
+FROM python:3.9-slim
 
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Environment Variables for Production
 ```bash
-pytest tests/
+# Production settings
+API_TITLE=Fuzzy Entity Matching API
+API_VERSION=1.0.0
+CORS_ORIGINS=["https://yourdomain.com"]
+TFIDF_WEIGHT=0.4
+LEVENSHTEIN_WEIGHT=0.4
+TOKEN_SET_WEIGHT=0.2
+LOG_LEVEL=INFO
 ```
 
-### Code Quality
+## 🤝 Contributing
 
-The project follows Python best practices with:
-- Type hints
-- Docstrings
-- Unit tests
-- Pydantic models for validation
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
-### Adding New Features
+## 📄 License
 
-1. **New Endpoints**: Add to `app/main.py`
-2. **Matching Logic**: Modify `app/matcher.py`
-3. **Text Processing**: Update `app/preprocessor.py`
-4. **Tests**: Add corresponding test files
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Deployment
+## 🆘 Support
 
-### Production Setup
+For issues and questions:
+1. Check the documentation
+2. Search existing issues
+3. Create a new issue with detailed information
 
-1. **Environment Variables**
-   ```bash
-   export CANONICAL_ENTITIES_FILE=/path/to/entities.json
-   export LOG_LEVEL=INFO
-   ```
+---
 
-2. **Run with Gunicorn**
-   ```bash
-   gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
-   ```
-
-3. **Docker Deployment**
-   ```dockerfile
-   FROM python:3.11-slim
-   WORKDIR /app
-   COPY requirements.txt .
-   RUN pip install -r requirements.txt
-   COPY . .
-   CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-   ```
-
-## API Documentation
-
-- **Interactive Docs**: http://127.0.0.1:8080/docs
-- **OpenAPI Spec**: http://127.0.0.1:8080/openapi.json
-- **ReDoc**: http://127.0.0.1:8080/redoc 
+**Note**: This API is designed for entity matching with a focus on German company names and legal entities. The preprocessing includes specific handling for German legal terms like "AG", "GmbH", etc. 

@@ -6,6 +6,8 @@ pandas
 python-multipart
 ftfy
 pytest
+pydantic[dotenv]
+pydantic-settings
 # For scalability (optional, choose one):
 faiss-cpu
 # annoy
