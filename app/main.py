@@ -1,7 +1,6 @@
 """
 Main FastAPI application entry point.
 """
-import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,18 +9,16 @@ from fastapi.responses import JSONResponse
 from .config import (
     API_TITLE, API_DESCRIPTION, API_VERSION,
     CORS_ORIGINS, CORS_CREDENTIALS, CORS_METHODS, CORS_HEADERS,
-    CANONICAL_ENTITIES
+    CANONICAL_ENTITIES, LOG_LEVEL
 )
 from .matcher import FuzzyMatcher
 from .services import MatchingService
 from .routers import create_matching_router, create_health_router
+from .logging_config import setup_logging, get_logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Setup centralized logging
+setup_logging(LOG_LEVEL)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager

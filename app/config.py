@@ -63,10 +63,11 @@ class Settings(BaseSettings):
         description="List of canonical entities for matching"
     )
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-        extra = "ignore"
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": False,
+        "extra": "ignore"
+    }
 
 
 # Create settings instance
@@ -88,4 +89,5 @@ CANONICAL_ENTITIES = settings.canonical_entities
 SUPPORTED_FILE_TYPES = settings.supported_file_types
 REQUIRED_CSV_COLUMN = settings.required_csv_column
 REQUIRED_JSON_FIELD = settings.required_json_field
-ERROR_UNSUPPORTED_FILE_TYPE = settings.error_unsupported_file_type 
+ERROR_UNSUPPORTED_FILE_TYPE = settings.error_unsupported_file_type
+LOG_LEVEL = settings.log_level 

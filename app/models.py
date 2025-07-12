@@ -1,12 +1,18 @@
 """
 Pydantic models for request/response validation and API documentation.
 """
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional
 
 
 class ScoreDetail(BaseModel):
     """Detailed similarity scores for each matching algorithm."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"tfidf": 0.95, "levenshtein": 0.98, "token_set": 0.97}
+        }
+    )
     
     tfidf: float = Field(
         ..., 
@@ -21,14 +27,15 @@ class ScoreDetail(BaseModel):
         json_schema_extra={"example": 0.97, "description": "Token set similarity score."}
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {"tfidf": 0.95, "levenshtein": 0.98, "token_set": 0.97}
-        }
-
 
 class MatchRequest(BaseModel):
     """Request model for single entity matching."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"query": "Buro AG"}
+        }
+    )
     
     query: str = Field(
         ..., 
@@ -43,14 +50,19 @@ class MatchRequest(BaseModel):
             raise ValueError('Query cannot be empty')
         return v.strip()
 
-    class Config:
-        json_schema_extra = {
-            "example": {"query": "Buro AG"}
-        }
-
 
 class MatchResult(BaseModel):
     """Result model for a single entity match."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "entity": "Büro AG",
+                "confidence": 0.98,
+                "scores": {"tfidf": 0.95, "levenshtein": 0.98, "token_set": 0.97}
+            }
+        }
+    )
     
     entity: str = Field(
         ..., 
@@ -65,34 +77,12 @@ class MatchResult(BaseModel):
         json_schema_extra={"description": "Detailed similarity scores."}
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "entity": "Büro AG",
-                "confidence": 0.98,
-                "scores": {"tfidf": 0.95, "levenshtein": 0.98, "token_set": 0.97}
-            }
-        }
-
 
 class MatchResponse(BaseModel):
     """Response model for single entity matching."""
     
-    query: str = Field(
-        ..., 
-        json_schema_extra={"example": "Buro AG", "description": "The original query string."}
-    )
-    top_match: Optional[MatchResult] = Field(
-        ..., 
-        json_schema_extra={"description": "The best match for the query."}
-    )
-    alternatives: List[MatchResult] = Field(
-        default=[], 
-        json_schema_extra={"description": "Alternative matches."}
-    )
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "Buro AG",
                 "top_match": {
@@ -114,10 +104,34 @@ class MatchResponse(BaseModel):
                 ]
             }
         }
+    )
+    
+    query: str = Field(
+        ..., 
+        json_schema_extra={"example": "Buro AG", "description": "The original query string."}
+    )
+    top_match: Optional[MatchResult] = Field(
+        ..., 
+        json_schema_extra={"description": "The best match for the query."}
+    )
+    alternatives: List[MatchResult] = Field(
+        default=[], 
+        json_schema_extra={"description": "Alternative matches."}
+    )
 
 
 class BatchMatchResult(BaseModel):
     """Result model for batch entity matching."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "input": "Buro AG",
+                "match": "Büro AG",
+                "confidence": 0.93
+            }
+        }
+    )
     
     input: str = Field(
         ..., 
@@ -136,18 +150,15 @@ class BatchMatchResult(BaseModel):
         json_schema_extra={"description": "Error message if matching failed."}
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "input": "Buro AG",
-                "match": "Büro AG",
-                "confidence": 0.93
-            }
-        }
-
 
 class ErrorResponse(BaseModel):
     """Error response model."""
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"error": "Unsupported file type. Use CSV or JSON with a 'names' field."}
+        }
+    )
     
     error: str = Field(
         ..., 
@@ -157,21 +168,17 @@ class ErrorResponse(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {"error": "Unsupported file type. Use CSV or JSON with a 'names' field."}
-        }
-
 
 class HealthResponse(BaseModel):
     """Health check response model."""
     
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"status": "ok"}
+        }
+    )
+    
     status: str = Field(
         ..., 
         json_schema_extra={"example": "ok", "description": "API health status."}
-    )
-    
-    class Config:
-        json_schema_extra = {
-            "example": {"status": "ok"}
-        } 
+    ) 
