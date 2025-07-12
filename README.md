@@ -133,7 +133,12 @@ file: [CSV or JSON file with 'names' column/field]
   {
     "input": "Buro AG",
     "match": "Büro AG",
-    "confidence": 0.93
+    "confidence": 0.93,
+    "scores": {
+      "tfidf": 0.95,
+      "levenshtein": 0.98,
+      "token_set": 0.97
+    }
   }
 ]
 ```

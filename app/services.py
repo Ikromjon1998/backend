@@ -178,7 +178,7 @@ class MatchingService:
             names: List of entity names to match
             
         Returns:
-            List of match results for each input name
+            List of match results for each input name with detailed scores
             
         Raises:
             ValueError: If names list is empty or contains invalid entries
@@ -201,7 +201,8 @@ class MatchingService:
                 results.append({
                     "input": name,
                     "match": match["entity"],
-                    "confidence": match["confidence"]
+                    "confidence": match["confidence"],
+                    "scores": match["scores"]
                 })
                 
             except Exception as e:
@@ -211,6 +212,7 @@ class MatchingService:
                     "input": name,
                     "match": None,
                     "confidence": 0.0,
+                    "scores": {"tfidf": 0.0, "levenshtein": 0.0, "token_set": 0.0},
                     "error": str(e)
                 })
         
