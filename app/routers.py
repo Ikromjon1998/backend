@@ -43,7 +43,7 @@ def create_matching_router(matching_service: MatchingService) -> APIRouter:
                 "description": "Successful match result.",
                 "content": {
                     "application/json": {
-                        "example": MatchResponse.Config.json_schema_extra["example"]
+                        "example": (getattr(MatchResponse, "model_config", {}) or {}).get("json_schema_extra", {}).get("example")
                     }
                 }
             },
@@ -85,7 +85,7 @@ def create_matching_router(matching_service: MatchingService) -> APIRouter:
                 "description": "Batch match results.",
                 "content": {
                     "application/json": {
-                        "example": [BatchMatchResult.Config.json_schema_extra["example"]]
+                        "example": [(getattr(BatchMatchResult, "model_config", {}) or {}).get("json_schema_extra", {}).get("example")]
                     }
                 }
             },
@@ -94,7 +94,7 @@ def create_matching_router(matching_service: MatchingService) -> APIRouter:
                 "description": "Unsupported file type or invalid file format.",
                 "content": {
                     "application/json": {
-                        "example": ErrorResponse.Config.json_schema_extra["example"]
+                        "example": (getattr(ErrorResponse, "model_config", {}) or {}).get("json_schema_extra", {}).get("example")
                     }
                 }
             },
