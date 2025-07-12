@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """
     Application lifespan manager for startup and shutdown events.
-    
+
     Args:
         app: FastAPI application instance
     """
@@ -33,9 +33,9 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Fuzzy Entity Matching API...")
     logger.info(f"API Version: {API_VERSION}")
     logger.info(f"Canonical entities loaded: {len(CANONICAL_ENTITIES)}")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Fuzzy Entity Matching API...")
 
@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
-    
+
     Returns:
         Configured FastAPI application instance
     """
@@ -76,7 +76,7 @@ def create_app() -> FastAPI:
     # Create and include routers
     matching_router = create_matching_router(matching_service)
     health_router = create_health_router()
-    
+
     app.include_router(matching_router)
     app.include_router(health_router)
 
@@ -95,3 +95,4 @@ def create_app() -> FastAPI:
 
 # Create the application instance
 app = create_app()
+

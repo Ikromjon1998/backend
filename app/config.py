@@ -1,7 +1,6 @@
 """
 Configuration settings for the Fuzzy Entity Matching API.
 """
-import os
 from typing import List
 from pydantic_settings import BaseSettings
 from pydantic import Field
@@ -9,7 +8,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
-    
+
     # API Configuration
     api_title: str = Field(default="Fuzzy Entity Matching API", description="API title")
     api_description: str = Field(
@@ -17,43 +16,43 @@ class Settings(BaseSettings):
         description="API description"
     )
     api_version: str = Field(default="1.0.0", description="API version")
-    
+
     # CORS Configuration
     cors_origins: List[str] = Field(default=["*"], description="CORS allowed origins")
     cors_credentials: bool = Field(default=True, description="CORS credentials")
     cors_methods: List[str] = Field(default=["*"], description="CORS allowed methods")
     cors_headers: List[str] = Field(default=["*"], description="CORS allowed headers")
-    
+
     # Matching Algorithm Configuration
     tfidf_weight: float = Field(default=0.4, ge=0.0, le=1.0, description="TF-IDF weight in matching algorithm")
     levenshtein_weight: float = Field(default=0.4, ge=0.0, le=1.0, description="Levenshtein weight in matching algorithm")
     token_set_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Token set weight in matching algorithm")
-    
+
     # Default Matching Parameters
     default_top_n: int = Field(default=3, gt=0, le=10, description="Default number of top matches to return")
-    
+
     # File Upload Configuration
     supported_file_types: List[str] = Field(default=[".csv", ".json"], description="Supported file types for upload")
     required_csv_column: str = Field(default="names", description="Required CSV column name")
     required_json_field: str = Field(default="names", description="Required JSON field name")
-    
+
     # Error Messages
     error_unsupported_file_type: str = Field(
         default="Unsupported file type. Use CSV or JSON with a 'names' field.",
         description="Error message for unsupported file types"
     )
-    
+
     # Logging Configuration
     log_level: str = Field(
         default="INFO",
         description="Logging level for the application"
     )
-    
+
     # Canonical Entities (in production, load from database or file)
     canonical_entities: List[str] = Field(
         default=[
             "Büro AG",
-            "Büro GmbH", 
+            "Büro GmbH",
             "Büro Restaurants",
             "Büro Deutschland GmbH & Co. KG",
             "Büro Offices Berlin GmbH & Co. KG",
@@ -62,7 +61,7 @@ class Settings(BaseSettings):
         ],
         description="List of canonical entities for matching"
     )
-    
+
     model_config = {
         "env_file": ".env",
         "case_sensitive": False,
@@ -90,4 +89,4 @@ SUPPORTED_FILE_TYPES = settings.supported_file_types
 REQUIRED_CSV_COLUMN = settings.required_csv_column
 REQUIRED_JSON_FIELD = settings.required_json_field
 ERROR_UNSUPPORTED_FILE_TYPE = settings.error_unsupported_file_type
-LOG_LEVEL = settings.log_level 
+LOG_LEVEL = settings.log_level
