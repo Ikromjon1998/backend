@@ -22,6 +22,8 @@ A robust FastAPI-based service for fuzzy entity matching using multiple similari
 - pandas
 - pydantic
 - pydantic-settings
+- pytest (for testing)
+- pytest-cov (for coverage)
 
 ## 🛠️ Installation
 
@@ -42,8 +44,14 @@ A robust FastAPI-based service for fuzzy entity matching using multiple similari
    pip install -r requirements.txt
    ```
 
-4. **Configure environment variables**
-   - Copy `.env.example` to `.env`:
+4. **(Optional) Install development dependencies**
+   If you have a `requirements-dev.txt` or similar, install it for testing and development:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+5. **Configure environment variables**
+   - Copy `.env.example` to `.env` (if `.env.example` does not exist, create it based on the configuration options in `app/config.py`):
      ```bash
      cp .env.example .env
      ```
@@ -90,6 +98,9 @@ The application uses environment variables for configuration. Key settings inclu
 - Logging is configured in `app/logging_config.py` and logs to both stdout and `app.log` file.
 - Extra fields in `.env` are ignored due to the config setting in `app/config.py`.
 
+### Canonical Entities
+- The canonical entities used for matching are currently hardcoded in `app/config.py` under the `canonical_entities` field. In production, you may want to load these from a database or external file.
+
 ## 📖 API Endpoints
 
 ### Single Entity Matching
@@ -101,6 +112,9 @@ Content-Type: application/json
   "query": "Buro AG"
 }
 ```
+
+**Request Body:**
+- JSON object with a `query` field (string): the entity name to match.
 
 **Response:**
 ```json
@@ -126,6 +140,9 @@ Content-Type: multipart/form-data
 
 file: [CSV or JSON file with 'names' column/field]
 ```
+
+**Request:**
+- Upload a file (CSV or JSON) with a `names` column (CSV) or `names` field (JSON) containing the list of entity names to match.
 
 **Response:**
 ```json
@@ -167,6 +184,17 @@ Run with coverage:
 pytest --cov=app tests/
 ```
 
+**Note:** If you have a `requirements-dev.txt` or similar, install it before running tests:
+```bash
+pip install -r requirements-dev.txt
+```
+
+**Test files:**
+- tests/test_matcher.py
+- tests/test_preprocessor.py
+- tests/test_api.py
+- tests/test_services.py
+
 ## 📁 Project Structure
 
 ```
@@ -183,9 +211,12 @@ backend/
 │   └── logging_config.py    # Centralized logging configuration
 ├── tests/
 │   ├── test_matcher.py
-│   └── test_preprocessor.py
+│   ├── test_preprocessor.py
+│   ├── test_api.py
+│   └── test_services.py
 ├── requirements.txt
 ├── sample.json              # Sample data for testing
+├── sample.csv               # Sample data for testing
 ├── .env.example             # Example environment configuration
 └── README.md
 ```
@@ -210,7 +241,6 @@ backend/
 ### 4. **Code Organization**
 - ✅ Clear separation of concerns
 - ✅ Service layer for business logic
-- ✅ Repository pattern for data access
 - ✅ Dependency injection
 
 ### 5. **Type Safety**
@@ -279,3 +309,11 @@ For issues and questions:
 ---
 
 **Note**: This API is designed for entity matching with a focus on German company names and legal entities. The preprocessing includes specific handling for German legal terms like "AG", "GmbH", etc. 
+
+## 📝 Changelog
+
+- See git history for recent changes. Add release notes here as needed.
+
+## 📬 Contact
+
+For questions, suggestions, or contributions, please open an issue or contact the maintainers via GitHub. 
