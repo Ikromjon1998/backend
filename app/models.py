@@ -128,7 +128,8 @@ class BatchMatchResult(BaseModel):
             "example": {
                 "input": "Buro AG",
                 "match": "Büro AG",
-                "confidence": 0.93
+                "confidence": 0.93,
+                "scores": {"tfidf": 0.95, "levenshtein": 0.98, "token_set": 0.97}
             }
         }
     )
@@ -144,6 +145,10 @@ class BatchMatchResult(BaseModel):
     confidence: float = Field(
         ..., 
         json_schema_extra={"example": 0.93, "description": "Confidence score for the match."}
+    )
+    scores: ScoreDetail = Field(
+        ..., 
+        json_schema_extra={"description": "Detailed similarity scores for each algorithm."}
     )
     error: Optional[str] = Field(
         None, 

@@ -33,6 +33,11 @@ def test_match_batch_csv():
     data = response.json()
     assert len(data) == 2
     assert data[0]["match"] is not None
+    # Check that scores field is present
+    assert "scores" in data[0]
+    assert "tfidf" in data[0]["scores"]
+    assert "levenshtein" in data[0]["scores"]
+    assert "token_set" in data[0]["scores"]
 
 def test_match_batch_json():
     df = pd.DataFrame({REQUIRED_JSON_FIELD: ["Buro AG", "Buro GmbH"]})
@@ -44,6 +49,11 @@ def test_match_batch_json():
     data = response.json()
     assert len(data) == 2
     assert data[0]["match"] is not None
+    # Check that scores field is present
+    assert "scores" in data[0]
+    assert "tfidf" in data[0]["scores"]
+    assert "levenshtein" in data[0]["scores"]
+    assert "token_set" in data[0]["scores"]
 
 def test_match_batch_invalid_file():
     files = {"file": ("test.txt", b"irrelevant", "text/plain")}
